@@ -1,6 +1,7 @@
 const AsyncHandler = require("express-async-handler");
 const User = require("../model/user.mongoose");
 const generateToken = require("../utils/generateToken");
+const { hashPassword, isPassMatched } = require("../utils/helpers");
 const verifyToken = require("../utils/verifyToken");
 
 //@desc Register User
@@ -16,7 +17,7 @@ exports.registerUserCtrl = AsyncHandler(async(req,res)=>{
             name,
             firstName,
             email,
-            password,
+            password: await hashPassword(password),
             phoneNumber,
             gender
         })
@@ -38,15 +39,18 @@ exports.loginUserCtrl = AsyncHandler(async(req,res)=>{
             message: "User not found"
         })
     }
-    if(user && user.verifyPassword(password)){
-        const token = generateToken(user._id);
-        const verify = verifyToken(token);
-        console.log(verify);
+    const isMatched = await isPassMatched(password, user.password);
+    if(!isMatched){
         return res.json({
-            data: generateToken(user._id),user,verify})
+            message: "Invalid login credentials"
+        })
     }else{
-        return res.json({message:"Invalid Login credentials"})
-    }
+        return res.json({
+            data: generateToken(user._id),
+            message: "User logged in succesfully",
+            
+        })
+        }
 })
 
 //@desc get All Users
@@ -61,10 +65,9 @@ exports.getAllUsersCtrl = AsyncHandler(async(req,res)=>{
     })
 })
 //@desc get User Profile
-//@route POST api/v1/users/profile
+//@route POST api/v1/users/:id
 //@access Private
 exports.getUserProfileCtrl = AsyncHandler(async(req,res)=>{
-    console.log(req.userAuth)
     const user =await User.findById(req.userAuth._id).select("-password -createdAt ");
     
     if(!user){
@@ -73,7 +76,61 @@ exports.getUserProfileCtrl = AsyncHandler(async(req,res)=>{
         res.status(200).json({
             status:'success',
             data: user,
-            message: "Admin logged in succesfuly"
+            message: "User profile fetched succesfuly"
         })
     }
+})
+//@desc Update user
+//@route PUT api/users/:id
+//@access Private
+exports.updateUserCtrl = AsyncHandler( async(req,res)=>{
+    const {email, name, password,firstName, phoneNumber, gender} = req.body;
+   
+    //if email is taken
+    const emailExist = await User.findOne({email})
+    if(emailExist){
+        throw new Error('This email is taken/exist');
+    }
+   
+    //check if user is updating password
+    if(password){
+        //update
+        const user = await User.findByIdAndUpdate(req.userAuth._id,{
+            name,
+            firstName,
+            email,
+            password: await hashPassword(password),
+            phoneNumber,
+            gender
+        },{
+            new: true,
+            runValidators: true,
+        })
+    res.status(200).json({
+        status: "success",
+        data: user,
+        message: "User updated succesfully"
+    })
+    
+    }else{
+        //update
+        const user = await User.findByIdAndUpdate(req.userAuth._id,{
+            name,
+            firstName,
+            email,
+            phoneNumber,
+            gender
+        },{
+            new: true,
+            runValidators: true,
+        })
+    res.status(200).json({
+        status: "success",
+        data: user,
+        message: "User updated succesfully"
+    })
+    
+    }
+
+        
 })

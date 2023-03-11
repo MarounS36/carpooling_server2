@@ -14,4 +14,5 @@ const evaluationSchema = new Schema(
 
     }
 )
-const evaluation = mongoose.model("Evaluation", evaluationSchema);
+const Evaluation = mongoose.model("Evaluation", evaluationSchema);
+module.exports = Evaluation; 

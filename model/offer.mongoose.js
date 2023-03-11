@@ -13,12 +13,21 @@ const offerSchema = new Schema({
     },
     citiesOfPassage:{
         type: String,
-        required: true
+        required: false
     },
     departureTime:{
         type: Date,
         required: true
     },
+    pricePerKm:{
+        type: Number,
+        required: true,
+    },
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Driver",
+        required: true,
+      },
 })
-const offer = mongoose.model("Offer", offerSchema);
-modules.export = offer;
+const Offer = mongoose.model("Offer", offerSchema);
+module.exports = Offer;

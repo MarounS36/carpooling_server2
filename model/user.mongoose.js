@@ -29,22 +29,6 @@ const userSchema = new Schema({
         required: true,
     }
 })
-//Hash password
-//Hash password
-userSchema.pre('save',async function(next){
-    if(this.isModified(this.password)){
-      next();
-    }
-  
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt)
-    next();
-  });
-  //verifyPassword
-  userSchema.methods.verifyPassword = async function(password) {
-    const user = this;
-    const match = await bcrypt.compare(password, user.password);
-    return match;
-  };
+
 const User = mongoose.model("User", userSchema);
 module.exports = User;

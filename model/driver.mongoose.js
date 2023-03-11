@@ -19,7 +19,13 @@ const driverSchema = new Schema({
             ref: "User"
         },
 
+    ],
+    evaluation:[
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        }
     ]
 })
-const driver = mongoose.model('Driver',driverSchema);
-module.exports = driver;
+const Driver = mongoose.model('Driver',driverSchema);
+module.exports = Driver;

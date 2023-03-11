@@ -26,5 +26,5 @@ const carPoolingServiceSchema = new Schema({
 
 })
 
-const carPoolingService = mongoose.model("CarPoolingService", carPoolingServiceSchema);
-module.exports = carPoolingService;
+const CarPoolingService = mongoose.model("CarPoolingService", carPoolingServiceSchema);
+module.exports = CarPoolingService;
